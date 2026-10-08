@@ -17,6 +17,9 @@ var searchInput = document.getElementById("searchInput");
 var nameError = document.getElementById("nameError");
 var phoneError = document.getElementById("phoneError");
 var emailError = document.getElementById("emailError");
+var avatarInput = document.getElementById("avatarInput");
+var avatarPreview = document.getElementById("avatarPreview");
+var avatarimg = "";
 var contacts = JSON.parse(localStorage.getItem("contacts")) || [];
 var currentEditIndex = null;
 displayContacts(contacts);
@@ -66,7 +69,8 @@ function addContact() {
     group: groupInput.value,
     notes: notesInput.value,
     favorite: favoriteInput.checked,
-    emergency: emergencyInput.checked
+    emergency: emergencyInput.checked,
+    avatar: avatarimg
   };
 
   contacts.push(newContact);
@@ -95,6 +99,8 @@ function clearForm() {
   nameError.classList.add("d-none");
   phoneError.classList.add("d-none");
   emailError.classList.add("d-none");
+  avatarPreview.innerHTML = `<i class="fa-solid fa-user"></i>`;
+  avatarimg = "";
 }
 function displayContacts(arr) {
   var cartoona = "";
@@ -134,7 +140,8 @@ function displayContacts(arr) {
                         <div
                           class="contact_avatar rounded-3 bg_violet d-flex align-items-center justify-content-center"
                         >
-                          ${getinitials(arr[i].fullName)}
+                                            ${arr[i].avatar ? `<img src="${arr[i].avatar}" class="w-100 h-100 object-fit-cover" />` : getinitials(arr[i].fullName)}
+
                         </div>
                         <span
                           class="contact_dot contact_dot_emer rounded-circle  ${arr[i].emergency ? "d-flex" : "d-none"}"
@@ -238,7 +245,8 @@ function displayContacts(arr) {
                 <div
                   class="side_avatar bg_violet rounded-2 d-flex align-items-center justify-content-center"
                 >
-                  ${getinitials(arr[i].fullName)}
+                 ${arr[i].avatar ? `<img src="${arr[i].avatar}" class="w-100 h-100 object-fit-cover" />` : getinitials(arr[i].fullName)}
+
                 </div>
                 <div class="flex-grow-1 min-w-0">
                   <h4>${arr[i].fullName}</h4>
@@ -257,7 +265,7 @@ function displayContacts(arr) {
                 <div
                   class="side_avatar bg_violet rounded-2 d-flex align-items-center justify-content-center"
                 >
-                  ${getinitials(arr[i].fullName)}
+                  ${arr[i].avatar ? `<img src="${arr[i].avatar}" class="w-100 h-100 object-fit-cover" />` : getinitials(arr[i].fullName)}
                 </div>
                 <div class="flex-grow-1 min-w-0">
                   <h4>${arr[i].fullName}</h4>
@@ -325,6 +333,12 @@ function editContact(i) {
   notesInput.value = contacts[i].notes;
   favoriteInput.checked = contacts[i].favorite;
   emergencyInput.checked = contacts[i].emergency;
+  if (contacts[i].avatar) {
+    avatarPreview.innerHTML = `<img src="${contacts[i].avatar}" class="w-100 h-100 object-fit-cover" />`
+  }
+  else {
+    avatarPreview.innerHTML = getinitials(contacts[i].fullName)
+  }
   document.getElementById("updateContactBtn").classList.remove("d-none");
   document.getElementById("submitButton").classList.add("d-none");
   currentEditIndex = i;
@@ -371,6 +385,7 @@ function updateContact() {
   contacts[currentEditIndex].notes = notesInput.value;
   contacts[currentEditIndex].favorite = favoriteInput.checked;
   contacts[currentEditIndex].emergency = emergencyInput.checked;
+  contacts[currentEditIndex].avatar = avatarimg || contacts[currentEditIndex].avatar;
   displayContacts(contacts);
   localStorage.setItem("contacts", JSON.stringify(contacts));
   closeContactModal()
@@ -443,3 +458,13 @@ function emerCount() {
   }
   return count;
 }
+
+avatarInput.addEventListener("change", function (e) {
+  var file = e.target.files[0]
+  var read = new FileReader()
+  read.readAsDataURL(file)
+  read.onload = function () {
+    avatarimg = read.result
+    avatarPreview.innerHTML = `<img src="${read.result}" class="w-100 h-100 object-fit-cover" />`
+  }
+})
